@@ -1,14 +1,29 @@
 # spec
 dev-ofa（全称：dev-one-for-all）致力于构建统一的软件工程开发规范与实现。
-本仓库专注于所有核心规范（specification）的定义，确保多语言、多实现间的高一致性与可扩展性。
+本目录专注于规范定义（specification），作为所有语言实现的唯一依赖与权威来源。
 
-## 项目愿景
-- 统一：为软件工程各环节提供标准化的接口、命名、数据结构与交互规范。
-- 可扩展：支持多语言、多平台的实现，便于社区拓展和集成。
-- 易用：清晰的规范定义，降低学习和接入成本。
-- 高内聚、低耦合：所有实现均以spec为唯一依赖，确保项目结构清晰、易于维护。
+## 使用范围
+- 规范定义仅包含跨语言通用约束，不包含实现细节
+- 所有实现必须以 spec 为唯一依赖，不得反向修改规范
+- 规范以 MUST/SHOULD/MAY 形式定义兼容性要求
 
-## 规范目录
-- API(RESTful/RPC)
-- Tracing
-- EntityDesign
+## 目录结构
+- [_meta](./_meta/spec.md)：术语、命名风格与版本策略
+- [api](./api/spec.md)：统一响应 Wrapper 与错误码规范
+- [logging](./logging/spec.md)：日志格式与请求生命周期日志
+- [tracing](./tracing/spec.md)：链路透传字段与跨协议传播规范
+- [entity](./entity/spec.md)：持久化对象落地规范
+- [patterns](./patterns/spec.md)：常用开发模式（CRUD、选主、异步 Worker、唯一 ID）
+
+## 实现指南（按语言）
+- 本目录不包含实现细节；语言/框架落地建议请参见 [guides](../guides/README.md)
+- [Go](../guides/go/README.md)
+- [Python](../guides/python/README.md)
+
+## 规范状态
+- Draft：可变更且可能出现破坏性调整
+- Stable：仅允许向后兼容的演进
+- Deprecated：保留但不再推荐使用
+
+## 版本策略
+规范使用语义化版本管理，详见 [_meta/spec.md](./_meta/spec.md)
