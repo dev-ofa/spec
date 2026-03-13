@@ -1,0 +1,14 @@
+[project]
+name = "orders"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+  "ruff",
+  "pyright",
+  "pytest",
+]
+
+[tool.ruff]
+line-length = 100
