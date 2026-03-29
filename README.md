@@ -10,6 +10,7 @@ dev-ofa（全称：dev-one-for-all）致力于构建统一的软件工程开发�
 ## 目录结构
 - [_meta](./_meta/spec.md)：术语、命名风格与版本策略
 - [api](./api/spec.md)：统一响应 Wrapper 与错误码规范
+- [config](./config/spec.md)：配置来源、命名、校验与安全规范
 - [logging](./logging/spec.md)：日志格式与请求生命周期日志
 - [tracing](./tracing/spec.md)：链路透传字段与跨协议传播规范
 - [entity](./entity/spec.md)：持久化对象落地规范
