@@ -23,7 +23,8 @@
 #### 命名风格
 - JSON 字段使用 snake_case
 - HTTP 头使用全大写与下划线分隔
-- 透传字段使用 OFA_ 前缀
+- 标准链路 header 使用 `OFA_PASS_` 或 `OFA_DIRECT_` 前缀
+- 语言实现内部的 context key、局部变量名、常量名不做统一约束
 
 #### 字段类型
 - code 为整数
