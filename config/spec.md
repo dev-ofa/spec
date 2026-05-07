@@ -15,6 +15,30 @@ Draft
 - 支持按环境读取差异化配置文件
   示例：`ENV=dev` 时读取 `config.dev.yaml`，不存在则忽略
 
+#### 文件读取约定
+- 默认基础配置文件名应为 `config.yaml`
+  示例：服务启动时先读取 `configs/config.yaml`
+- 未显式指定配置文件路径时，必须先加载 `config.yaml` 作为基线，再按顺序叠加其他来源
+  示例：`config.yaml` -> `config.dev.yaml` -> `config.local.yaml`
+- 当存在 `ENV=<name>` 时，约定读取 `config.<name>.yaml` 作为环境差异配置；文件不存在时可忽略
+  示例：`ENV=staging` 时尝试读取 `configs/config.staging.yaml`
+- 即使未设置 `ENV`，只要存在 `config.local.yaml`，也必须自动读取并叠加到 `config.yaml` 之上
+  示例：本地开发默认按 `config.yaml` -> `config.local.yaml` 计算最终配置
+- `config.local.yaml` 的定位是本地覆盖文件，不得被当作完整独立配置替代 `config.yaml`
+  示例：`config.local.yaml` 中只写 `llm.providers.volcengine.api_key` 仍应与 `config.yaml` 合并后得到完整配置
+
+#### Merge 规则
+- 多个文件按加载顺序做深度 merge，后加载文件覆盖先加载文件的同名路径
+  示例：`config.yaml` 中 `llm.providers.deepseek.base_url` 被 `config.local.yaml` 中同路径值覆盖
+- 对象（map/dict）类型必须递归 merge，而不是整段替换
+  示例：基础配置已有 `llm.providers.volcengine.base_url`，本地文件只写 `api_key` 时，最终应同时保留两个字段
+- 标量、数组与非对象值采用整值覆盖，不做元素级 merge
+  示例：`cors.allow_origins` 在覆盖文件中出现后，应整体替换基础配置中的数组
+- 覆盖文件中未出现的字段必须继承前一层结果，不得因“未声明”而丢失
+  示例：`config.local.yaml` 未声明 `server.port` 时，最终仍使用 `config.yaml` 的 `server.port`
+- 若实现支持显式传入配置文件路径，应在文档中明确该路径是“完整配置文件”还是“覆盖文件”；不得保留歧义
+  示例：CLI `--config /path/to/config.yaml` 应明确说明是否还会继续自动叠加 `config.local.yaml`
+
 
 ### 命名与结构
 

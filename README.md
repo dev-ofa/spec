@@ -2,6 +2,8 @@
 dev-ofa（全称：dev-one-for-all）致力于构建统一的软件工程开发规范与实现。
 本目录专注于规范定义（specification），作为所有语言实现的唯一依赖与权威来源。
 
+执行规则以 `spec/AGENTS.md` 为准；本文件只提供规范导航与目录说明。
+
 ## 使用范围
 - 规范定义仅包含跨语言通用约束，不包含实现细节
 - 所有实现必须以 spec 为唯一依赖，不得反向修改规范
@@ -18,9 +20,9 @@ dev-ofa（全称：dev-one-for-all）致力于构建统一的软件工程开发�
 - [patterns](./patterns/spec.md)：常用开发模式（CRUD、选主、异步 Worker、唯一 ID）
 
 ## 实现指南（按语言）
-- 本目录不包含实现细节；语言/框架落地建议请参见 [guides](../guides/README.md)
-- [Go](../guides/go/README.md)
-- [Python](../guides/python/README.md)
+- 本目录不包含实现细节；语言/框架落地建议请参见 [guides](./guides/README.md)
+- [Go](./guides/go/README.md)
+- [Python](./guides/python/README.md)
 
 ## 规范状态
 - Draft：可变更且可能出现破坏性调整
