@@ -79,8 +79,11 @@
 > 完整规范：[patterns/spec.md](./patterns/spec.md)
 
 - CRUD：资源名词复数，Create/Update 返回统一 Wrapper，Delete 返回被删资源 id
-- 异步 Worker：任务必须幂等，失败支持重试与死信，记录开始/结束日志
-- 唯一 ID：全局唯一且趋势递增，支持多节点并发
+- 唯一 ID：全局唯一且趋势递增，支持多节点并发，对外推荐字符串 ID
+- 分布式锁：必须有 ttl、timeout、持有者校验，禁止作为幂等或事务一致性的唯一保障
+- 选主与心跳：必须有 node key、isolation key、lease/ttl、失效恢复与状态变更日志
+- 分布式事务：优先本地事务，跨资源一致性优先使用 Outbox、Saga、TCC 与幂等补偿
+- 异步 Worker：任务必须幂等，失败支持重试与死信，互斥执行需确认有效 lease 或 leader 身份
 
 ## 编码通用规则
 

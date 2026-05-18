@@ -17,12 +17,15 @@ dev-ofa（全称：dev-one-for-all）致力于构建统一的软件工程开发�
 - [resilience](./resilience/spec.md)：超时预算、跨服务传播与重试约束
 - [tracing](./tracing/spec.md)：链路透传字段与跨协议传播规范
 - [entity](./entity/spec.md)：持久化对象落地规范
-- [patterns](./patterns/spec.md)：常用开发模式（CRUD、选主、异步 Worker、唯一 ID）
+- [patterns](./patterns/spec.md)：常用开发模式（CRUD、唯一 ID、分布式锁、选主、心跳、异步 Worker、分布式事务）
 
 ## 实现指南（按语言）
 - 本目录不包含实现细节；语言/框架落地建议请参见 [guides](./guides/README.md)
 - [Go](./guides/go/README.md)
 - [Python](./guides/python/README.md)
+
+## 配套说明
+- [DKit](./patterns/dkit.md)：patterns 规范的一种工程化实现思路，重点说明如何复用事务数据库实现轻量分布式原语
 
 ## 规范状态
 - Draft：可变更且可能出现破坏性调整
