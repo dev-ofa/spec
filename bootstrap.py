@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
 
 BEGIN_MARKER = "<!-- BEGIN dev-ofa spec-bootstrap -->"
 END_MARKER = "<!-- END dev-ofa spec-bootstrap -->"
+
+
+def content_prefers_chinese(content: str) -> bool:
+    return any("\u4e00" <= char <= "\u9fff" for char in content)
 
 
 def infer_repo_paths(script_file: Path) -> tuple[Path, Path]:
@@ -24,7 +29,20 @@ def infer_repo_paths(script_file: Path) -> tuple[Path, Path]:
     return repo_root, spec_dir
 
 
-def build_agents_block(spec_relative_path: str) -> str:
+def build_agents_block(spec_relative_path: str, *, language: str) -> str:
+    if language == "zh":
+        return (
+            f"{BEGIN_MARKER}\n"
+            "## dev-ofa 规范\n\n"
+            "- 本仓库接入 dev-ofa spec。\n"
+            "- 本区块是供 Agent 使用的仓库本地索引。\n"
+            f"- 先阅读 `{spec_relative_path}/README.md`。\n"
+            f"- 编码前阅读 `{spec_relative_path}/AGENTS.md`。\n"
+            f"- 遵循 `{spec_relative_path}/` 下适用的领域规范和语言指南。\n"
+            "- 将 `spec` 作为兼容性事实来源；将语言指南作为实现指导。\n"
+            f"{END_MARKER}\n"
+        )
+
     return (
         f"{BEGIN_MARKER}\n"
         "## dev-ofa spec\n\n"
@@ -38,15 +56,48 @@ def build_agents_block(spec_relative_path: str) -> str:
     )
 
 
-def ensure_agents_block(repo_root: Path, spec_relative_path: str) -> bool:
+def build_initial_agents_content(spec_relative_path: str, *, language: str) -> str:
+    if language == "en":
+        template = (
+            "# AGENTS.md\n\n"
+            "## Project Rules\n\n"
+            "- This file is the repository-level entry point for coding agents.\n"
+            "- Before starting a task, read this file and the relevant README, docs, and code.\n"
+            "- Follow the existing repository structure, naming, testing, and commit conventions.\n"
+            "- Confirm the impact scope before editing and avoid unrelated changes.\n"
+            "- If a rule or requirement is unclear, state the question and confirm with maintainers first.\n\n"
+        )
+        return template + build_agents_block(spec_relative_path, language="en")
+
+    template = (
+        "# AGENTS.md\n\n"
+        "## 项目规则\n\n"
+        "- 本文件是仓库级 Agent 工作入口。\n"
+        "- 开始任务前，先阅读本文件以及与任务相关的 README、docs 和代码。\n"
+        "- 遵循仓库已有目录结构、命名、测试和提交风格。\n"
+        "- 修改前先确认影响范围，不改动与任务无关的文件。\n"
+        "- 不确定规则或需求时，先说明疑问并向维护者确认。\n\n"
+    )
+    return template + build_agents_block(spec_relative_path, language="zh")
+
+
+def ensure_agents_block(
+    repo_root: Path, spec_relative_path: str, *, init_language: str
+) -> bool:
     agents_path = repo_root / "AGENTS.md"
-    managed_block = build_agents_block(spec_relative_path)
 
     if not agents_path.exists():
-        agents_path.write_text(managed_block, encoding="utf-8")
+        agents_path.write_text(
+            build_initial_agents_content(
+                spec_relative_path, language=init_language
+            ),
+            encoding="utf-8",
+        )
         return True
 
     original = agents_path.read_text(encoding="utf-8")
+    language = "zh" if content_prefers_chinese(original) else "en"
+    managed_block = build_agents_block(spec_relative_path, language=language)
     updated = upsert_managed_block(original, managed_block)
     if updated == original:
         return False
@@ -73,11 +124,25 @@ def normalize_trailing_newline(content: str) -> str:
     return content.rstrip() + "\n"
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--init-language",
+        choices=("zh", "en"),
+        default="zh",
+        help="Language used only when bootstrap creates a new root AGENTS.md.",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
     try:
+        args = parse_args()
         repo_root, spec_dir = infer_repo_paths(Path(__file__))
         spec_relative_path = spec_dir.relative_to(repo_root).as_posix()
-        agents_changed = ensure_agents_block(repo_root, spec_relative_path)
+        agents_changed = ensure_agents_block(
+            repo_root, spec_relative_path, init_language=args.init_language
+        )
     except Exception as exc:  # pragma: no cover - top-level error reporting
         print(f"[spec-bootstrap] error: {exc}", file=sys.stderr)
         return 1

@@ -44,7 +44,8 @@ python docs/spec/bootstrap.py
 ```
 
 - `bootstrap.py` 当前会基于 `docs/spec` 的目录约定，初始化或更新目标项目根目录下的 `AGENTS.md`，作为接入方仓库中的 repo-local 索引入口
-- 如果目标项目已经存在 `AGENTS.md`，脚本会以托管区块的方式插入或更新 dev-ofa 相关内容，而不会整文件覆盖
+- 如果目标项目不存在 `AGENTS.md`，脚本会生成一个简洁的仓库级模板，并写入 dev-ofa 托管区块；默认使用中文，也可通过 `python docs/spec/bootstrap.py --init-language en` 指定英文
+- 如果目标项目已经存在 `AGENTS.md`，脚本会以托管区块的方式插入或更新 dev-ofa 相关内容，而不会整文件覆盖；已有内容包含中文时，托管区块使用中文，否则保留英文
 
 ## 目录结构
 - [_meta](./_meta/spec.md)：术语、命名风格与版本策略
