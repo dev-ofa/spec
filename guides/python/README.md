@@ -91,6 +91,7 @@ make sync fmt lint type test
 ```
 
 ## 与 spec 的对齐要点（落地提醒）
-- API：实现统一响应包装与错误码映射，参见 [api/spec.md](../../spec/api/spec.md)
-- Logging：实现请求生命周期日志与字段规范，参见 [logging/spec.md](../../spec/logging/spec.md)
-- Tracing：实现透传字段与跨协议传播，参见 [tracing/spec.md](../../spec/tracing/spec.md)
+- API：实现统一响应包装与错误码映射，参见 [api/spec.md](../../api/spec.md)
+- Logging：实现请求生命周期日志与字段规范，参见 [logging/spec.md](../../logging/spec.md)
+- Service：实现跨系统域名入口、系统内服务发现与默认协议约束，参见 [service/spec.md](../../service/spec.md)
+- Tracing：实现透传字段与跨协议传播，参见 [tracing/spec.md](../../tracing/spec.md)

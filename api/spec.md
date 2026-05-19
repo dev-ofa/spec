@@ -3,6 +3,18 @@
 ### 状态
 Draft
 
+### 目标
+- 统一 HTTP API 的资源建模、URL 结构、标准方法、自定义方法与应用层响应约束。
+- 降低跨语言接入与文档理解成本，使不同服务在资源命名、错误表达和响应结构上保持一致。
+
+### 适用范围
+- 面向服务间或客户端访问的 HTTP/HTTPS 请求-响应式 API。
+- 基于资源导向设计的应用层接口，以及其统一响应 Wrapper 与错误码表达。
+
+### 非目标
+- 不覆盖 gRPC、消息订阅、双向流等非 HTTP 协议的接口设计。
+- 不替代具体业务领域模型设计，也不逐条重述外部完整 AIP 规范。
+
 本项目的 API 设计遵循 **资源导向设计 (Resource Oriented Design)** 原则，主要参考 [Google API Design Guide (AIP)](https://google.aip.dev/1)。
 
 > **注意**：本规范提炼了最核心的设计原则。更详细的内容请访问谷歌云的规范定义：[Google Cloud API Design Guide](https://cloud.google.com/apis/design) 或 [AIP.dev](https://google.aip.dev)。
@@ -74,8 +86,8 @@ URL 应清晰地表达资源层级关系：
 - **request_id** (`string`): 当前服务处理该次请求的唯一标识，用于定位单跳请求、响应与日志。不同服务间可以变化；跨服务关联应主要依赖 `trace_id`。
 
 #### 可选字段
-- **data** (`object` | `array`): 业务数据载荷。
-  - 如果无数据返回，建议不返回该字段或返回 `null`。
+- **data** (`object` | `array` | `null`): 业务数据载荷。
+  - 如果无数据返回，建议返回 `null`。
   - 对于列表接口，空数组必须返回 `[]`，不得返回 `null`。
 
 ### 错误码规范

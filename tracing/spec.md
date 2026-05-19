@@ -3,10 +3,17 @@
 ### 状态
 Draft
 
-### 介绍
+### 目标
 - 本规范定义跨服务、跨协议、跨异步边界的链路透传字段。
 - 目标是让日志、错误排查、权限审计与租户定位在整条调用链上保持可关联。
-- 本规范只定义跨语言统一的链路 header 与传播规则，不约束具体框架实现。
+
+### 适用范围
+- 跨服务调用、跨协议调用、消息投递与异步任务调度等需要透传链路上下文的场景。
+- 跨语言统一的链路 header、语义字段与传播规则。
+
+### 非目标
+- 不约束具体框架、SDK 或语言内部的 context 实现方式。
+- 不覆盖业务自定义透传字段的完整设计，只约束标准链路字段与保留名称。
 
 ### 透传字段
 
@@ -14,6 +21,8 @@ Draft
 - `trace_id`、`request_id`、`remaining_timeout`、`operator`、`tenant_id`、`app_id` 是语义字段名，用于描述字段含义。
 - `OFA_PASS_*`、`OFA_DIRECT_*` 是实际在链路上传输的标准 header 名。
 - 语言实现中的内存 context key、局部变量名、常量名不在本规范约束范围内，只要语义不冲突即可。
+- `trace_id`、`request_id`、`remaining_timeout`、`operator`、`tenant_id`、`app_id` 及其大小写/下划线等等价形式是规范保留语义字段，业务程序不得将这些名称用于自定义透传变量或赋予不同业务含义。
+- 本规范列出的标准 header 名为保留 header，业务程序不得自行占用、覆盖、复用或以不同语义解释这些 header；业务自定义透传字段必须使用不会与标准字段冲突的名称。
 
 #### 标准链路 Header
 
@@ -61,3 +70,4 @@ Draft
 - 本规范统一的是链路 header 名，不限制语言实现内部如何命名
 - `OFA_DIRECT_REQUEST_ID` 与 `OFA_DIRECT_REMAINING_TIMEOUT_MS` 是本规范中定义的通用 `OFA_DIRECT_*` 字段
 - 除上述字段外，其他 `OFA_DIRECT_*` 字段由服务按需自行约定
+- 业务自定义 `OFA_PASS_*` 或 `OFA_DIRECT_*` 扩展字段时，不得使用与标准语义字段等价的名称，例如 `TRACE_ID`、`REQUEST_ID`、`REMAINING_TIMEOUT_MS`、`OPERATOR`、`TENANT_ID`、`APP_ID`。

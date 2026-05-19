@@ -14,7 +14,7 @@
       "type": "string"
     },
     "data": {
-      "type": ["object", "array", "string", "number", "boolean", "null"]
+      "type": ["object", "array", "null"]
     }
   },
   "additionalProperties": false
