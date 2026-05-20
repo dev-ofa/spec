@@ -20,6 +20,7 @@ dev-ofa（全称：dev-one-for-all）致力于构建统一的软件工程开发�
 ### 原则 2：规范本地化
 - 项目接入规范后，应在接入方仓库内形成 repo-local 的索引入口，供 Agent 直接感知
 - 当前优先采用接入方仓库根目录下的 `AGENTS.md` 作为索引入口；未来可按工具需要扩展到其他本地入口形式
+- Agent 执行任务时，应从编辑目标所在路径向上优先查找最近的 `AGENTS.md`，按目录层级叠加规则；若存在冲突，以更接近编辑目标的文件为准
 - 分发方式不做唯一限定；当前推荐将 `spec` clone 到目标项目的 `docs/spec` 目录中，但体系设计不应依赖于某一种接入方式
 - 当前 `bootstrap.py` 仅支持 `docs/spec` 这一目录布局；如果采用其他接入路径，需要手动维护 repo-local 索引入口，或自行扩展接入脚本
 
@@ -44,8 +45,9 @@ python docs/spec/bootstrap.py
 ```
 
 - `bootstrap.py` 当前会基于 `docs/spec` 的目录约定，初始化或更新目标项目根目录下的 `AGENTS.md`，作为接入方仓库中的 repo-local 索引入口
-- 如果目标项目不存在 `AGENTS.md`，脚本会生成一个简洁的仓库级模板，并写入 dev-ofa 托管区块；默认使用中文，也可通过 `python docs/spec/bootstrap.py --init-language en` 指定英文
+- 如果目标项目不存在 `AGENTS.md`，脚本会生成一个简洁的仓库级模板，并写入 dev-ofa 托管区块；模板默认强调先澄清假设、优先简单方案、最小化改动和可验证交付；默认使用中文，也可通过 `python docs/spec/bootstrap.py --init-language en` 指定英文
 - 如果目标项目已经存在 `AGENTS.md`，脚本会以托管区块的方式插入或更新 dev-ofa 相关内容，而不会整文件覆盖；已有内容包含中文时，托管区块使用中文，否则保留英文
+- 托管区块会明确要求 Agent 以编辑目标为起点向上查找最近的 `AGENTS.md`，从而支持分模块、分层级地声明规则，而不必把所有约束都堆在仓库根文件中
 
 ## 目录结构
 - [_meta](./_meta/spec.md)：术语、命名风格与版本策略

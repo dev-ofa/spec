@@ -38,6 +38,7 @@ def build_agents_block(spec_relative_path: str, *, language: str) -> str:
             "- 本区块是供 Agent 使用的仓库本地索引。\n"
             f"- 先阅读 `{spec_relative_path}/README.md`。\n"
             f"- 编码前阅读 `{spec_relative_path}/AGENTS.md`。\n"
+            "- 开始修改前，以编辑目标为起点向上查找最近的 `AGENTS.md`，按目录层级叠加适用规则；若规则冲突，以更接近编辑目标的文件为准。\n"
             f"- 遵循 `{spec_relative_path}/` 下适用的领域规范和语言指南。\n"
             "- 将 `spec` 作为兼容性事实来源；将语言指南作为实现指导。\n"
             f"{END_MARKER}\n"
@@ -50,6 +51,7 @@ def build_agents_block(spec_relative_path: str, *, language: str) -> str:
         "- This block is a repo-local index for coding agents.\n"
         f"- Read `{spec_relative_path}/README.md` first.\n"
         f"- Read `{spec_relative_path}/AGENTS.md` before coding.\n"
+        "- Before editing, start from the target path and look upward for the nearest `AGENTS.md`; apply rules layer by layer, and let the closer file win on conflicts.\n"
         f"- Follow the applicable domain specs and language guides under `{spec_relative_path}/`.\n"
         "- Treat `spec` as the compatibility source of truth; treat language guides as implementation guidance.\n"
         f"{END_MARKER}\n"
@@ -63,9 +65,12 @@ def build_initial_agents_content(spec_relative_path: str, *, language: str) -> s
             "## Project Rules\n\n"
             "- This file is the repository-level entry point for coding agents.\n"
             "- Before starting a task, read this file and the relevant README, docs, and code.\n"
+            "- State assumptions and ambiguities explicitly; if requirements are unclear, ask maintainers before implementing.\n"
+            "- Prefer the simplest solution that fully satisfies the request; avoid speculative abstractions, options, or configurability.\n"
             "- Follow the existing repository structure, naming, testing, and commit conventions.\n"
             "- Confirm the impact scope before editing and avoid unrelated changes.\n"
-            "- If a rule or requirement is unclear, state the question and confirm with maintainers first.\n\n"
+            "- Make surgical changes only; do not refactor adjacent code or remove unrelated dead code unless asked.\n"
+            "- Turn the task into verifiable checks and confirm them before handoff.\n\n"
         )
         return template + build_agents_block(spec_relative_path, language="en")
 
@@ -74,9 +79,12 @@ def build_initial_agents_content(spec_relative_path: str, *, language: str) -> s
         "## 项目规则\n\n"
         "- 本文件是仓库级 Agent 工作入口。\n"
         "- 开始任务前，先阅读本文件以及与任务相关的 README、docs 和代码。\n"
+        "- 先显式说明假设和歧义；如果需求不清楚，先提出问题并向维护者确认。\n"
+        "- 优先选择刚好满足需求的最简单方案，不预埋额外抽象、配置或扩展点。\n"
         "- 遵循仓库已有目录结构、命名、测试和提交风格。\n"
         "- 修改前先确认影响范围，不改动与任务无关的文件。\n"
-        "- 不确定规则或需求时，先说明疑问并向维护者确认。\n\n"
+        "- 只做与当前任务直接相关的最小修改，不顺手重构周边代码，也不删除既有但无关的死代码。\n"
+        "- 先把任务转成可验证的完成条件，交付前确认这些检查已经满足。\n\n"
     )
     return template + build_agents_block(spec_relative_path, language="zh")
 
