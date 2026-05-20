@@ -21,7 +21,7 @@ dev-ofa（全称：dev-one-for-all）致力于构建统一的软件工程开发�
 - 项目接入规范后，应在接入方仓库内形成 repo-local 的索引入口，供 Agent 直接感知
 - 当前优先采用接入方仓库根目录下的 `AGENTS.md` 作为索引入口；未来可按工具需要扩展到其他本地入口形式
 - Agent 执行任务时，应从编辑目标所在路径向上优先查找最近的 `AGENTS.md`，按目录层级叠加规则；若存在冲突，以更接近编辑目标的文件为准
-- 分发方式不做唯一限定；当前推荐将 `spec` clone 到目标项目的 `docs/spec` 目录中，但体系设计不应依赖于某一种接入方式
+- 分发方式不做唯一限定；当前推荐将 `spec` 以 git submodule 的方式接入到目标项目的 `docs/spec` 目录中，但体系设计不应依赖于某一种接入方式
 - 接入方仓库中的 `docs/spec/` 只是规范分发副本和只读引用源，不是当前项目的本地规范目录；项目自有规则应写在 `docs/spec/` 之外的合适位置
 - 当前 `bootstrap.py` 仅支持 `docs/spec` 这一目录布局；如果采用其他接入路径，需要手动维护 repo-local 索引入口，或自行扩展接入脚本
 
@@ -36,13 +36,30 @@ dev-ofa（全称：dev-one-for-all）致力于构建统一的软件工程开发�
 - 后续应逐步通过自动化流程完成提醒、同步、生成和必要校验，降低人工维护成本
 
 ## 推荐接入方式
-- 建议将 `spec` 仓库 clone 到目标项目的 `docs/spec` 目录下
+- 建议将 `spec` 仓库放在目标项目的 `docs/spec` 目录下
+- 如果希望由父仓库显式管理版本并方便后续更新，建议以 git submodule 的方式接入
 - 体系设计允许采用其他分发方式，但当前 `bootstrap.py` 只支持 `docs/spec`
-- 初始化命令：
+- 以 git submodule 接入
 
 ```bash
-git clone https://github.com/dev-ofa/spec.git docs/spec
+git submodule add https://github.com/dev-ofa/spec.git docs/spec
 python docs/spec/bootstrap.py
+```
+
+- 如果是首次 clone 一个已经接入了该 submodule 的项目，需要先初始化 submodule
+
+```bash
+git submodule update --init --recursive
+python docs/spec/bootstrap.py
+```
+
+- 更新 submodule 到远端最新提交后，需要在父仓库中提交 submodule 引用变更
+
+```bash
+git submodule update --remote docs/spec
+python docs/spec/bootstrap.py
+git add docs/spec
+git commit -m "chore: update dev-ofa spec"
 ```
 
 - `bootstrap.py` 当前会基于 `docs/spec` 的目录约定，初始化或更新目标项目根目录下的 `AGENTS.md`，作为接入方仓库中的 repo-local 索引入口
