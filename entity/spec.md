@@ -27,3 +27,14 @@ entity 规范用于定义持久化对象的落地规范，包括但不限于审�
 ### 软删语义
 - deleted_at 为空表示有效
 - deleted_at 非空表示逻辑删除
+
+### 查询与分页命名
+- 当 CRUD 查询包含时间范围条件时，应统一使用 `<field>_before` 与 `<field>_after` 作为查询字段名，例如 `created_at_before`、`created_at_after`。
+- 对本规范中的常见审计时间字段，查询命名应对应为 `created_at_before` / `created_at_after`、`updated_at_before` / `updated_at_after`、`deleted_at_before` / `deleted_at_after`。
+- 为避免连续区间筛选在边界值上出现 overlap，时间范围应默认按左闭右开语义解释：`*_after` 表示“大于等于该时间点之后”的下界条件，`*_before` 表示“小于该时间点之前”的上界条件。
+- 当同时提供 `*_after` 与 `*_before` 时，区间语义等价于 `[after, before)`；同一接口内不得混用其他命名方式。
+- 本规范只约束通用字段命名，不要求所有实体或接口都必须提供时间范围查询能力。
+- 当接口支持分页查询时，请求字段名应统一对齐 `core-go` 当前实现，使用 `page_size`、`page_num`、`page_token`。
+- `page_size` 表示每页数量，`page_num` 表示页码，`page_token` 表示基于游标翻页时使用的续页标识。
+- 本规范不强制页码分页与游标分页二选一；若接口支持其中某一种，可只使用对应字段，但字段名不得另起别名。
+- 当接口返回分页结果时，结果字段名应统一使用 `rows` 与 `total_count`。
