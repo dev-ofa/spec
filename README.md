@@ -72,6 +72,7 @@ git commit -m "chore: update dev-ofa spec"
 - [_meta](./_meta/spec.md)：术语、命名风格与版本策略
 - [api](./api/spec.md)：统一响应 Wrapper 与错误码规范
 - [config](./config/spec.md)：配置来源、命名、校验与安全规范
+- [dependency](./dependency/spec.md)：依赖生命周期、依赖发现方式与 service locator 治理规范
 - [logging](./logging/spec.md)：日志格式与请求生命周期日志
 - [service](./service/spec.md)：服务间调用、系统边界、默认协议与服务发现规范
 - [resilience](./resilience/spec.md)：超时预算、跨服务传播与重试约束
@@ -82,6 +83,7 @@ git commit -m "chore: update dev-ofa spec"
 
 ## 实现指南（按语言）
 - 语言/框架落地建议请参见 [guides](./guides/README.md)
+- [通用依赖实践](./guides/dependency.md)
 - [Go](./guides/go/README.md)
 - [Python](./guides/python/README.md)
 

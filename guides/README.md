@@ -7,5 +7,6 @@
 
 ## 语言列表
 - [通用编码规范](./coding.md)
+- [通用依赖实践](./dependency.md)
 - [Go](./go/README.md)
 - [Python](./python/README.md)
