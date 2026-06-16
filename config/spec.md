@@ -42,6 +42,8 @@ Draft
   示例：本地开发默认按 `config.yaml < config.local.yaml` 计算文件覆盖关系
 - `config.local.yaml` 的定位是本地覆盖文件，不得被当作完整独立配置替代 `config.yaml`
   示例：`config.local.yaml` 中只写 `llm.providers.volcengine.api_key` 仍应与 `config.yaml` 合并后得到完整配置
+- `config.local.yaml` 必须作为本地私有文件处理，不得提交到代码仓库；仓库必须通过 `.gitignore` 或等效机制排除该文件
+  示例：`.gitignore` 中包含 `config.local.yaml`
 
 #### Merge 规则
 - 多个来源按覆盖优先级做深度 merge，优先级更高的来源覆盖优先级更低来源的同名路径
@@ -77,8 +79,10 @@ Draft
 ### 安全与敏感信息
 
 #### 必须
-- 密钥、密码、Token 必须仅从环境变量或安全存储读取，不得要求通过文件配置或启动参数传入
+- 生产、测试、预发等共享环境中的密钥、密码、Token 必须仅从环境变量或安全存储读取，不得要求通过文件配置或启动参数传入
   示例：`APP__DB__PASSWORD` 从环境变量读取
+- 本地开发可以通过 `config.local.yaml` 提供密钥、密码、Token；实现和仓库配置必须保证该文件不会被提交到代码仓库，已被版本控制跟踪的 `config.local.yaml` 不得作为合规敏感配置来源
+  示例：本地调试使用 `configs/config.local.yaml` 写入 `db.password`，但该文件必须被 `.gitignore` 排除
 - 禁止在日志中输出敏感配置明文
   示例：日志仅记录 `db.uri` 的主机名，不记录密码
 - 示例配置必须使用占位符，不得包含真实凭据
