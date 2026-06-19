@@ -24,8 +24,8 @@ Draft
   示例：`config.yaml`、`config.dev.yaml`、`config.local.yaml` 与 `APP__HTTP__PORT` 同时声明 `http.port` 时，最终使用 `APP__HTTP__PORT`
 - 同一路径配置必须由优先级更高的来源覆盖优先级更低的来源
   示例：`configs/config.yaml` 中 `db.uri` 被 `APP__DB__URI` 覆盖
-- 支持按环境引入差异化配置文件
-  示例：`ENV=dev` 时读取 `config.dev.yaml`，不存在则忽略
+- 支持按环境变量中的部署环境选择器引入差异化配置文件
+  示例：`APP__ENV=dev` 时读取 `config.dev.yaml`，不存在则忽略
 - 启动参数不属于标准配置来源；实现可以支持启动参数，但不得要求业务依赖启动参数完成标准配置覆盖
   示例：实现可支持 `--http.port=9090` 作为调试能力，但标准部署不应依赖该参数
 - 若实现支持启动参数，必须在实现文档中明确其覆盖优先级、安全限制与可观测行为
@@ -36,9 +36,15 @@ Draft
   示例：以 `configs/config.yaml` 作为默认基础配置来源
 - 未显式指定配置文件路径时，必须以 `config.yaml` 作为基础配置来源，并按本规范优先级计算最终配置
   示例：文件来源内部按 `config.yaml < config.dev.yaml < config.local.yaml` 计算覆盖关系
-- 当存在 `ENV=<name>` 时，`config.<name>.yaml` 作为环境差异配置来源参与最终配置计算；文件不存在时可忽略
-  示例：`ENV=staging` 时，`configs/config.staging.yaml` 作为环境差异配置来源
-- 即使未设置 `ENV`，只要存在 `config.local.yaml`，也必须作为本地覆盖来源参与最终配置计算
+- 部署环境选择器必须仅从环境变量读取，用于决定是否加载 `config.<env>.yaml`；文件不存在时可忽略
+  示例：`APP__ENV=staging` 时，`configs/config.staging.yaml` 作为环境差异配置来源
+- 部署环境选择器的环境变量名由 `EnvPrefix + EnvSeparator + DeployEnvKey` 组成；默认 `EnvPrefix=APP`、`EnvSeparator=__`、`DeployEnvKey=ENV`，因此默认读取 `APP__ENV`
+  示例：`APP__ENV=staging` 作为默认部署环境选择器
+- 部署环境选择器必须同时参与最终配置覆盖，其最终规范路径由 `lower(EnvPrefix) + "." + lower(DeployEnvKey)` 派生
+  示例：`APP__ENV=staging` 对应最终配置中的 `app.env=staging`
+- 若实现允许自定义 `EnvPrefix`、`EnvSeparator` 或 `DeployEnvKey`，必须明确这些选项会同时影响部署环境选择器的环境变量名与最终配置路径
+  示例：`EnvPrefix=SERVICE`、`DeployEnvKey=PROFILE` 时，`SERVICE__PROFILE=dev` 对应最终配置路径 `service.profile`
+- 即使未设置部署环境选择器，只要存在 `config.local.yaml`，也必须作为本地覆盖来源参与最终配置计算
   示例：本地开发默认按 `config.yaml < config.local.yaml` 计算文件覆盖关系
 - `config.local.yaml` 的定位是本地覆盖文件，不得被当作完整独立配置替代 `config.yaml`
   示例：`config.local.yaml` 中只写 `llm.providers.volcengine.api_key` 仍应与 `config.yaml` 合并后得到完整配置
@@ -65,6 +71,8 @@ Draft
   示例：`http.port`、`db.uri`、`logging.level`
 - 环境变量必须使用统一应用前缀，并使用 `__` 表示层级分隔
   示例：`APP__HTTP__PORT=8080` 对应规范路径 `http.port`
+- 部署环境选择器必须遵循相同命名规则，其最终配置路径由环境变量映射规则派生
+  示例：`APP__ENV=dev` 对应规范路径 `app.env`；`SERVICE__PROFILE=dev` 对应规范路径 `service.profile`
 - 环境变量名必须使用大写 ASCII 字母、数字与下划线，不得使用 `.` 作为环境变量层级分隔符
   示例：使用 `APP__LOGGING__LEVEL=INFO`，不使用 `APP.LOGGING.LEVEL=INFO`
 - 实现必须将环境变量名显式映射到规范路径，不得依赖配置库的默认环境变量解析行为
