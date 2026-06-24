@@ -71,6 +71,7 @@ git commit -m "chore: update dev-ofa spec"
 ## 目录结构
 - [_meta](./_meta/spec.md)：术语、命名风格与版本策略
 - [api](./api/spec.md)：HTTP API 资源建模与统一响应 Wrapper
+- [authentication](./authentication/spec.md)：认证凭证来源、适用边界与最小安全要求
 - [config](./config/spec.md)：配置来源、命名、校验与安全规范
 - [dependency](./dependency/spec.md)：依赖生命周期、依赖发现方式与 service locator 治理规范
 - [error](./error/spec.md)：错误分类、错误码、传播、上下文、记录与对外表达规范
