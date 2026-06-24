@@ -80,6 +80,7 @@ git commit -m "chore: update dev-ofa spec"
 - [resilience](./resilience/spec.md)：超时预算、跨服务传播与重试约束
 - [tracing](./tracing/spec.md)：链路透传字段与跨协议传播规范
 - [entity](./entity/spec.md)：持久化对象落地规范
+- [i18n](./i18n/spec.md)：国际化基础规范，覆盖 locale 选择、传播、资源回退、响应结构和地区化边界
 - [resource](./resource/spec.md)：二进制资源标识符、直传与旁路传输规范
 - [patterns](./patterns/spec.md)：常用开发模式（CRUD、唯一 ID、分布式锁、选主、心跳、异步 Worker、并发控制、分布式事务）
 
