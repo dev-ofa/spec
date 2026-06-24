@@ -18,10 +18,10 @@ Draft
 ### 透传字段
 
 #### 命名层次
-- `trace_id`、`request_id`、`remaining_timeout`、`operator`、`tenant_id`、`app_id` 是语义字段名，用于描述字段含义。
+- `trace_id`、`request_id`、`remaining_timeout`、`operator`、`tenant_id`、`app_id`、`locale` 是语义字段名，用于描述字段含义。
 - `OFA_PASS_*`、`OFA_DIRECT_*` 是实际在链路上传输的标准 header 名。
 - 语言实现中的内存 context key、局部变量名、常量名不在本规范约束范围内，只要语义不冲突即可。
-- `trace_id`、`request_id`、`remaining_timeout`、`operator`、`tenant_id`、`app_id` 及其大小写/下划线等等价形式是规范保留语义字段，业务程序不得将这些名称用于自定义透传变量或赋予不同业务含义。
+- `trace_id`、`request_id`、`remaining_timeout`、`operator`、`tenant_id`、`app_id`、`locale` 及其大小写/下划线等等价形式是规范保留语义字段，业务程序不得将这些名称用于自定义透传变量或赋予不同业务含义。
 - 本规范列出的标准 header 名为保留 header，业务程序不得自行占用、覆盖、复用或以不同语义解释这些 header；业务自定义透传字段必须使用不会与标准字段冲突的名称。
 
 #### 标准链路 Header
@@ -34,6 +34,7 @@ Draft
 | operator | OFA_PASS_OPERATOR | 全链路 | 操作者标识。用于标识发起当前业务动作的用户、账号或系统主体。 | 上游提供时直接透传；上游未提供但入口服务可从鉴权或上下文解析时，可以补齐。 |
 | tenant_id | OFA_PASS_TENANT_ID | 全链路 | 租户标识。用于表达当前请求所属的租户隔离维度。 | 上游提供时直接透传；上游未提供但入口服务可以确定租户时，可以补齐。 |
 | app_id | OFA_PASS_APP_ID | 全链路 | 应用标识。用于标识发起请求的应用、业务系统或接入方。 | 上游提供时直接透传；上游未提供但入口服务可以确定来源应用时，可以补齐。 |
+| locale | OFA_PASS_LOCALE | 全链路 | 当前请求已决策的 effective locale。用于保持服务间语言和格式化语义一致。 | 入口服务完成 locale 解析、归一化和 fallback 后可以补齐；上游已提供时直接透传。具体 locale 语义与决策优先级由 `i18n` 规范定义。 |
 
 #### ID 格式
 - `trace_id` 必须使用 `32位小写十六进制` 格式，例如 `8f14e45fceea167a5a36dedd4bea2543`
@@ -54,11 +55,11 @@ Draft
 
 #### 传播规则
 - 所有对外请求必须携带 `OFA_PASS_TRACE_ID` 与 `OFA_DIRECT_REQUEST_ID`
-- `OFA_PASS_TRACE_ID`、`OFA_PASS_OPERATOR`、`OFA_PASS_TENANT_ID`、`OFA_PASS_APP_ID` 视为全链路透传字段
+- `OFA_PASS_TRACE_ID`、`OFA_PASS_OPERATOR`、`OFA_PASS_TENANT_ID`、`OFA_PASS_APP_ID`、`OFA_PASS_LOCALE` 视为全链路透传字段
 - 请求发起方必须在发送前完成 `OFA_PASS_TRACE_ID` 与 `OFA_DIRECT_REQUEST_ID` 的生成或补齐
 - 服务在发起下游调用时，必须沿用当前 `OFA_PASS_TRACE_ID`，并在发送前为该次下游调用生成新的 `OFA_DIRECT_REQUEST_ID`
 - 如果当前上下文启用了超时控制，则请求发起方在发送前必须同时写入 `OFA_DIRECT_REMAINING_TIMEOUT_MS`
-- `OFA_PASS_OPERATOR`、`OFA_PASS_TENANT_ID`、`OFA_PASS_APP_ID` 在有值时不得被下游服务随意丢弃、清空或改写
+- `OFA_PASS_OPERATOR`、`OFA_PASS_TENANT_ID`、`OFA_PASS_APP_ID`、`OFA_PASS_LOCALE` 在有值时不得被下游服务随意丢弃、清空或改写
 - 所有下游调用必须透传当前上下文中已有的 `OFA_PASS_*` 字段，并携带该次调用自己的 `OFA_DIRECT_REQUEST_ID`
 - `OFA_DIRECT_REMAINING_TIMEOUT_MS` 的具体计算、裁剪与重试约束由 `resilience` 规范定义
 - 跨协议调用、消息投递、异步任务调度等场景同样适用上述传播规则
@@ -70,4 +71,4 @@ Draft
 - 本规范统一的是链路 header 名，不限制语言实现内部如何命名
 - `OFA_DIRECT_REQUEST_ID` 与 `OFA_DIRECT_REMAINING_TIMEOUT_MS` 是本规范中定义的通用 `OFA_DIRECT_*` 字段
 - 除上述字段外，其他 `OFA_DIRECT_*` 字段由服务按需自行约定
-- 业务自定义 `OFA_PASS_*` 或 `OFA_DIRECT_*` 扩展字段时，不得使用与标准语义字段等价的名称，例如 `TRACE_ID`、`REQUEST_ID`、`REMAINING_TIMEOUT_MS`、`OPERATOR`、`TENANT_ID`、`APP_ID`。
+- 业务自定义 `OFA_PASS_*` 或 `OFA_DIRECT_*` 扩展字段时，不得使用与标准语义字段等价的名称，例如 `TRACE_ID`、`REQUEST_ID`、`REMAINING_TIMEOUT_MS`、`OPERATOR`、`TENANT_ID`、`APP_ID`、`LOCALE`。
