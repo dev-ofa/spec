@@ -35,7 +35,7 @@ Draft
 ### 通用命名
 - 跨规范新增 JSON 字段默认使用 snake_case，除非对应 spec 明确声明其他格式。
 - 标准 header 名由所属领域 spec 定义；链路相关 header 以 `tracing` 规范为准。
-- 如果某个进程内 context value 需要跨语言统一命名，应由所属领域 spec 显式注册，并使用 `OFA_` 前缀。
+- 标准 string ContextKey 默认使用小写字母、数字与连字符；有对应标准 header 的字段应复用 header 名，没有对应 header 的进程内字段应由所属领域 spec 显式定义，默认使用 `ofa-*` 前缀，且不得使用已保留给 header 的子前缀。
 - 未被 spec 显式注册的语言实现内部 context key、局部变量名、常量名不做统一约束。
 
 #### 时间字段

@@ -150,8 +150,8 @@ Draft
 | label_selector | 否 | 标签选择表达式。用于表达调用方要求实例必须满足的硬过滤条件，语义应尽量对齐 Kubernetes label selector。 |
 | preferred_label_selector | 否 | 偏好标签选择表达式。用于表达调用方优先选择的实例条件，语义应尽量对齐 Kubernetes label selector。 |
 | resolve_mode | 否 | 实例解析模式。第一版可以支持 `healthy_only` 与 `all`；默认必须为 `healthy_only`。 |
-| request_id | 否 | 本次发现请求的单跳标识。若当前调用链已存在 `OFA_DIRECT_REQUEST_ID`，应沿用其语义。 |
-| trace_id | 否 | 当前链路标识。若当前调用链已存在 `OFA_PASS_TRACE_ID`，应沿用其语义。 |
+| request_id | 否 | 本次发现请求的单跳标识。若当前调用链已存在 `request_id`，应沿用其语义。 |
+| trace_id | 否 | 当前链路标识。若当前调用链已存在 `trace_id`，应沿用其语义。 |
 
 #### 请求语义
 - `service_name` 与 `namespace` 共同构成一次查询的最小定位键；二者缺失任一项时，请求必须失败。
@@ -331,7 +331,7 @@ Draft
 - 调用方在访问其他 system 时，必须能够绑定来源身份、租户、应用标识或等价认证信息。
 
 #### 可观测
-- 所有服务间调用都必须遵循 `tracing` 规范，透传 `OFA_PASS_TRACE_ID`、`OFA_DIRECT_REQUEST_ID` 与其他规定字段。
+- 所有服务间调用都必须遵循 `tracing` 规范，透传 `ofa-pass-trace-id`、`ofa-direct-request-id` 与其他规定字段。
 - 所有服务间调用都必须遵循 `resilience` 规范，统一处理 timeout quota、remaining timeout 与重试边界。
 - 调用链路必须能够区分至少以下失败类型：服务不存在、无健康实例、连接失败、超时、上游治理拒绝、下游业务失败。
 - 与服务发现相关的关键失败必须具备日志与指标，包括查询失败、缓存失效、实例全不健康与治理规则拒绝。

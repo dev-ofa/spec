@@ -29,8 +29,8 @@ Draft
 - 当前服务在本进程内认定的绝对过期时间点；它由入口初始化或由上游传播而来，用于本地计算 remaining timeout。
 
 #### request deadline
-- `OFA_REQUEST_DEADLINE` 是 authoritative deadline 的标准进程内 context value 名。
-- `OFA_REQUEST_DEADLINE` 仅用于当前服务进程内传播，不是链路 header，也不参与跨服务直接透传。
+- `request_deadline` 是 authoritative deadline 的进程内语义字段。
+- `ofa-request-deadline` 是该语义字段对应的标准 string ContextKey，仅用于当前服务进程内传播，不是链路 header，也不参与跨服务直接透传。
 
 #### retry
 - 在一次请求失败后，由调用方重新发起同一语义请求的行为。
@@ -56,8 +56,8 @@ Draft
 #### 进程内表示
 - server 在收到请求后，必须在当前进程内保存本次请求的开始处理时间与 authoritative deadline。
 - server 在进程内传播时，应优先使用绝对 deadline 表达；remaining timeout 仅作为基于 deadline 的派生值。
-- server 在进程内传播 authoritative deadline 时，应使用标准 context value 名 `OFA_REQUEST_DEADLINE`。
-- `OFA_REQUEST_DEADLINE` 表示绝对 deadline 语义；具体语言实现可以使用本地原生的绝对时间类型承载，本规范不定义跨语言序列化格式。
+- server 在进程内传播 authoritative deadline 时，应使用标准 string ContextKey `ofa-request-deadline`。
+- `request_deadline` 表示绝对 deadline 语义；具体语言实现可以使用本地原生的绝对时间类型承载，本规范不定义跨语言序列化格式。
 - `remaining_timeout_ms` 不得作为服务进程内的权威超时状态长期保存或传播。
 - 当 remaining timeout 已小于本地最小可执行阈值时，server 应尽早失败，而不是继续调用下游。
 
@@ -67,43 +67,42 @@ Draft
 
 | 语义字段 | 标准 header | 作用范围 | 说明 |
 | --- | --- | --- | --- |
-| remaining_timeout_ms | OFA_DIRECT_REMAINING_TIMEOUT_MS | 单跳 | 当前服务在发送请求瞬间计算出的 remaining timeout，单位毫秒。 |
+| remaining_timeout_ms | ofa-direct-remaining-timeout-ms | 单跳 | 当前服务在发送请求瞬间计算出的 remaining timeout，单位毫秒。 |
 
-#### 标准 ContextValue
+#### 进程内 ContextKey
 
-| 语义字段 | 标准 context value | 作用范围 | 说明 |
+| 语义字段 | 标准 string ContextKey | 作用范围 | 说明 |
 | --- | --- | --- | --- |
-| request_deadline | OFA_REQUEST_DEADLINE | 进程内 | 当前请求在本服务进程内的 authoritative deadline。仅用于进程内传播，不是链路 header。 |
+| request_deadline | ofa-request-deadline | 进程内 | 当前请求在本服务进程内的 authoritative deadline。仅用于进程内传播，不是链路 header。 |
 
 #### 统一传播模型
 - 所有调用方应采用统一的 gRPC 风格传播模型：本地保存 absolute deadline，跨服务传播 remaining timeout。
-- client 仅在向支持 OFA 超时传播模型的下游发起请求时，才应写入 `OFA_DIRECT_REMAINING_TIMEOUT_MS`。
-- 对外发起请求时，如果当前上下文存在 `OFA_REQUEST_DEADLINE`，则必须先基于该 deadline 计算当前 remaining timeout，再注入 `OFA_DIRECT_REMAINING_TIMEOUT_MS`。
-- `OFA_DIRECT_REMAINING_TIMEOUT_MS` 的值必须是请求发送瞬间计算得到的 remaining timeout，而不是初始 quota。
-- `OFA_DIRECT_REMAINING_TIMEOUT_MS` 是单跳 header，不是标准进程内 context value；接收方不得把它作为全请求生命周期内的权威超时状态直接传播。
-- server 收到 `OFA_DIRECT_REMAINING_TIMEOUT_MS` 后，必须以“收到请求的当前时刻”为基准重建本地 authoritative deadline，并写入 `OFA_REQUEST_DEADLINE`。
-- server 发起下游调用时，必须基于当前 `OFA_REQUEST_DEADLINE` 重新计算 remaining timeout，而不是直接复用入站 header 的原值。
+- 如果当前上下文存在 `ofa-request-deadline`，且下游支持 OFA 超时传播模型，client 在对外发起请求时必须先基于该 deadline 计算当前 remaining timeout，再写入 `ofa-direct-remaining-timeout-ms`。
+- `ofa-direct-remaining-timeout-ms` 的值必须是请求发送瞬间计算得到的 remaining timeout，而不是初始 quota。
+- `ofa-direct-remaining-timeout-ms` 是单跳 header；接收方不得把入站 header 值作为全请求生命周期内的权威超时状态直接传播。
+- server 收到 `ofa-direct-remaining-timeout-ms` 后，必须以“收到请求的当前时刻”为基准重建本地 authoritative deadline，并写入 `ofa-request-deadline`。
+- server 发起下游调用时，必须基于当前 `ofa-request-deadline` 重新计算 remaining timeout，而不是直接复用入站 header 的原值。
 - 任意一跳都不得把入站 quota 重置为自身默认超时。
 - 如果入站请求未携带 quota，则接收方可以按本接口定义的默认 timeout quota 初始化 authoritative deadline。
 - 如果入站 quota 大于本接口允许的最大 quota，server 可以按本接口上限对其进行裁剪。
 - server 对入站 quota 的裁剪只允许收紧，不允许放大。
-- 如果下游 SDK 或协议不支持 OFA 超时传播模型，调用方必须基于当前 `OFA_REQUEST_DEADLINE` 主动计算并设置该下游调用的本地 timeout，而不是把 `remaining_timeout_ms` 作为普通 context value 传给第三方 SDK。
+- 如果下游 SDK 或协议不支持 OFA 超时传播模型，调用方必须基于当前 `ofa-request-deadline` 主动计算并设置该下游调用的本地 timeout，而不是把 `remaining_timeout_ms` 作为普通上下文值传给第三方 SDK。
 
 #### 计算规则
 - 设当前服务在 `t0` 时刻收到请求，入站 quota 为 `Q`。
 - 如果本接口定义的最大 quota 为 `Qmax`，则当前服务应先计算 `Qeffective = min(Q, Qmax)`；若未配置 `Qmax`，则 `Qeffective = Q`。
-- 当前服务必须立即建立 `authoritative_deadline = t0 + Qeffective`，并将其保存到 `OFA_REQUEST_DEADLINE`。
+- 当前服务必须立即建立 `authoritative_deadline = t0 + Qeffective`，并将其保存到 `ofa-request-deadline`。
 - 当前时刻为 `t1` 时，`remaining_timeout = max(authoritative_deadline - t1, 0)`。
 - 发起下游调用前，必须基于当前时刻重新计算 `remaining_timeout`；如果结果小于等于 `0`，则不得继续调用下游。
 - 如果实现支持 per-try timeout，则单次尝试超时必须小于等于当前 `remaining_timeout`。
 
 #### 下游 timeout 收紧
-- `OFA_DIRECT_REMAINING_TIMEOUT_MS` 的标准语义是“发送瞬间的当前 remaining timeout”；实现不应把它解释为新的初始 quota。
+- `ofa-direct-remaining-timeout-ms` 的标准语义是“发送瞬间的当前 remaining timeout”；实现不应把它解释为新的初始 quota。
 - 当调用方需要把当前剩余预算映射到不支持 OFA 的下游 SDK timeout、transport timeout 或其他本地等待参数时，该 timeout 必须小于当前 `remaining_timeout`，并预留有界 safety margin。
 - 推荐先按当前 `remaining_timeout` 的 `5%` 预留 safety margin。
 - 如果按 `5%` 算出来小于 `50ms`，则按 `50ms` 预留。
 - 如果按 `5%` 算出来大于 `500ms`，则按 `500ms` 预留。
-- 如果实现选择在生成 `OFA_DIRECT_REMAINING_TIMEOUT_MS` 时也做本地收紧，该收紧只允许减少，不允许放大，且不应改变“该值源自发送瞬间 authoritative deadline”的语义。
+- 如果实现选择在生成 `ofa-direct-remaining-timeout-ms` 时也做本地收紧，该收紧只允许减少，不允许放大，且不应改变“该值源自发送瞬间 authoritative deadline”的语义。
 - 如果 `remaining_timeout` 已小于等于最小可执行阈值加 safety margin，调用方应直接失败，而不是继续发起下游调用。
 
 #### RTT 与时钟漂移
@@ -150,10 +149,10 @@ Draft
 ### 示例
 
 #### 示例一：quota 传播
-- 调用方向服务 A 发起请求，并携带 `OFA_DIRECT_REMAINING_TIMEOUT_MS=5000`。
+- 调用方向服务 A 发起请求，并携带 `ofa-direct-remaining-timeout-ms: 5000`。
 - 服务 A 在收到请求的时刻，根据入站 quota 与本接口最大 quota 计算 `Qeffective`，并立即初始化 authoritative deadline。
-- A 在本地处理 `800ms` 后调用服务 B，此时注入 `OFA_DIRECT_REMAINING_TIMEOUT_MS=4200`。
-- B 在收到请求时立即重建自己的 authoritative deadline；B 再处理 `700ms` 后调用服务 C，此时注入 `OFA_DIRECT_REMAINING_TIMEOUT_MS=3500`。
+- A 在本地处理 `800ms` 后调用服务 B，此时注入 `ofa-direct-remaining-timeout-ms: 4200`。
+- B 在收到请求时立即重建自己的 authoritative deadline；B 再处理 `700ms` 后调用服务 C，此时注入 `ofa-direct-remaining-timeout-ms: 3500`。
 - 如果 A 之前的网络传输已经消耗了部分时间，该部分损耗不会被精确扣除；这是统一传播模型接受的 RTT 误差。
 - 如果 B 在准备调用 C 时发现 remaining timeout 已小于等于 `0`，则应直接返回超时，而不是继续调用 C。
 

@@ -63,26 +63,26 @@ Accept-Language: zh-CN
 
 服务端在入口处解析并归一化后，应得到 effective locale。服务间调用、异步任务、消息投递和跨协议调用应传播 effective locale，而不是原样传播未经解析的 `Accept-Language`。
 
-标准服务间透传 header 为：
+标准服务间透传 HTTP header 为：
 
 ```text
-OFA_PASS_LOCALE: zh-CN
+ofa-pass-locale: zh-CN
 ```
 
 传播规则：
 
-- `OFA_PASS_LOCALE` 表达已经归一化后的 effective locale。
-- 上游已经提供 `OFA_PASS_LOCALE` 时，下游服务应沿用，除非当前服务有明确的用户偏好变更或显式覆盖。
-- 服务发起下游调用时，应继续透传当前请求上下文中的 `OFA_PASS_LOCALE`。
-- HTTP 以外的协议应提供等价字段，字段语义仍为 `locale`。
+- `ofa-pass-locale` 表达已经归一化后的 effective locale。
+- 上游已经提供 `ofa-pass-locale` 时，下游服务应沿用，除非当前服务有明确的用户偏好变更或显式覆盖。
+- 服务发起下游调用时，应继续透传当前请求上下文中的 `ofa-pass-locale`。
+- HTTP 以外的协议如果支持字符串 metadata key，应优先复用 `ofa-pass-locale`；如果协议不支持该命名形式，必须提供等价字段，字段语义仍为 `locale`。
 - 查询参数 `locale` 只能用于 WebSocket 握手、调试、平台 header 受限或显式覆盖场景；普通 HTTP API 默认应优先使用 header。
 
-`Accept-Language` 和 `OFA_PASS_LOCALE` 的语义不同：
+`Accept-Language` 和 `ofa-pass-locale` 的语义不同：
 
 | 字段 | 语义 |
 | --- | --- |
 | `Accept-Language` | 客户端语言偏好，可能包含多个候选值和权重。 |
-| `OFA_PASS_LOCALE` | 服务端已决策并归一化后的 effective locale。 |
+| `ofa-pass-locale` | 服务端已决策并归一化后的 effective locale。 |
 
 ### 响应与协议稳定性
 
