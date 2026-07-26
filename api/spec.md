@@ -107,7 +107,7 @@ RESTful API 的响应载荷 **应当** 优先表达资源本身，而不是为�
 {
   "code": 0,
   "message": "success",
-  "request_id": "req_20260420153045_9F1C2A3B4D5E6F708192",
+  "request_id": "req_20260726_133502_e4cswh5f2whjd4ah",
   "data": { ... }
 }
 ```
