@@ -5,7 +5,7 @@
 ## 目录分层（推荐）
 
 适用场景：中大型服务端项目（HTTP/gRPC/异步 Worker），需要清晰边界与可测试性。
-本分层是推荐而非强制，也可以采用传统三层分层方式（如 controller/service/repo 或 handler/service/dao）。
+本分层是推荐而非强制，也 **可以** 采用传统三层分层方式（如 controller/service/repo 或 handler/service/dao）。
 
 ```
 .
@@ -66,19 +66,19 @@
 - 多模块仓库：优先评估是否真的需要；确需多模块时使用 `go.work` 管理本地联调
 
 ## 环境与版本管理
-- 必须固定 Go 版本，并让开发机/CI 使用同一版本
+- **必须** 固定 Go 版本，并让开发机/CI 使用同一版本
 - 推荐使用版本管理工具统一安装（择一即可）：
   - `mise`（在 `mise.toml` 固定版本）
   - `asdf`（在 `.tool-versions` 固定版本）
 
 ## 代码风格与工具链（推荐）
-- 格式化：`gofmt` 必须执行；推荐 `goimports` 统一 import 分组
+- 格式化：`gofmt` **必须** 执行；推荐 `goimports` 统一 import 分组
 - 质量检查（择一或组合）：
   - `golangci-lint` 作为聚合 lint
   - `staticcheck` 作为补充
 - 测试：优先 `go test ./...`；对关键逻辑补齐单元测试，并保证可并行运行
 
-## 项目应具备的基本命令
+## 项目 **应当** 具备的基本命令
 
 建议在仓库根目录提供统一入口（例如 Makefile），至少包含以下命令语义：
 - `fmt`：格式化代码（`gofmt` + `goimports`）
