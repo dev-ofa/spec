@@ -87,7 +87,6 @@ git commit -m "chore: update dev-ofa spec"
 ## 实现指南（按语言）
 - 语言/框架落地建议请参见 [guides](./guides/README.md)
 - [通用编码规范](./guides/coding.md)
-- [通用依赖实践](./guides/dependency.md)
 - [Go](./guides/go/README.md)
 - [Python](./guides/python/README.md)
 
